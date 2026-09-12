@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"strings"
 
 	"net/http"
 
@@ -160,13 +159,7 @@ func (provider *DNSProvider) getRecord(recordName string, zoneID string, Type st
 		return Record{}, fmt.Errorf("zone doesn't have an records")
 	}
 	outRecord := Record{}
-	// ip_type is compared case-insensitively because it is documented as "IPv4"
-	// or "IPv6", while the web UI stores it as "IPV4" or "IPV6".
-	if strings.ToUpper(Type) == utils.IPV6 {
-		Type = utils.IPTypeAAAA
-	} else {
-		Type = utils.IPTypeA
-	}
+	Type = utils.RecordType(Type)
 	found := false
 
 	for _, record := range response.Records {

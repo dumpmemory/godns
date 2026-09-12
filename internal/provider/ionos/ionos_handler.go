@@ -181,15 +181,13 @@ func (provider *DNSProvider) getRecord(zoneID, recordName string) (id string, ip
 }
 
 // getRecordType maps the configured ip_type to the DNS record type to update.
-// ip_type is compared case-insensitively because it is documented as "IPv4" or
-// "IPv6", while the web UI stores it as "IPV4" or "IPV6".
+// Besides the usual IPv4/IPv6 values, IONOS has historically accepted "AAAA".
 func (provider *DNSProvider) getRecordType() string {
-	ipType := strings.ToUpper(provider.configuration.IPType)
-	if ipType == utils.IPV6 || ipType == utils.IPTypeAAAA {
+	if strings.EqualFold(provider.configuration.IPType, utils.IPTypeAAAA) {
 		return utils.IPTypeAAAA
 	}
 
-	return utils.IPTypeA
+	return utils.RecordType(provider.configuration.IPType)
 }
 
 func (provider *DNSProvider) updateRecord(zoneID, recordID, recordName, ip string) error {
