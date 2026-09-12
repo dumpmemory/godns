@@ -86,14 +86,7 @@ func (provider *DNSProvider) UpdateIP(domainName, subdomainName, ip string) erro
 }
 
 func (provider *DNSProvider) getRecordType() string {
-	var recordType string = utils.IPTypeA
-	if provider.configuration.IPType == "" || strings.ToUpper(provider.configuration.IPType) == utils.IPV4 {
-		recordType = utils.IPTypeA
-	} else if strings.ToUpper(provider.configuration.IPType) == utils.IPV6 {
-		recordType = utils.IPTypeAAAA
-	}
-
-	return recordType
+	return utils.RecordType(provider.configuration.IPType)
 }
 
 func (provider *DNSProvider) getCurrentDomain(domainName string) *settings.Domain {

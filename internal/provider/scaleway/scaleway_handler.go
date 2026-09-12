@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"strings"
 
 	"github.com/TimothyYe/godns/internal/settings"
 	"github.com/TimothyYe/godns/internal/utils"
@@ -69,9 +68,9 @@ func (provider *DNSProvider) UpdateIP(domainName string, subdomainName string, i
 }
 
 func (provider *DNSProvider) getRecordType() (string, error) {
-	if strings.ToUpper(provider.configuration.IPType) == utils.IPV4 {
+	if utils.IsIPv4(provider.configuration.IPType) {
 		return utils.IPTypeA, nil
-	} else if strings.ToUpper(provider.configuration.IPType) == utils.IPV6 {
+	} else if utils.IsIPv6(provider.configuration.IPType) {
 		return utils.IPTypeAAAA, nil
 	}
 	return "", errors.New("must specify \"ip_type\" in config for Scaleway")

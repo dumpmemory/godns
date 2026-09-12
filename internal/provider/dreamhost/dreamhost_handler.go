@@ -52,12 +52,7 @@ func (provider *DNSProvider) updateIP(hostname, currentIP, lastIP string) error 
 
 // updateDNS can add or remove DNS records.
 func (provider *DNSProvider) updateDNS(dns, ip, hostname, action string) error {
-	var ipType string
-	if provider.configuration.IPType == "" || strings.ToUpper(provider.configuration.IPType) == utils.IPV4 {
-		ipType = utils.IPTypeA
-	} else if strings.ToUpper(provider.configuration.IPType) == utils.IPV6 {
-		ipType = utils.IPTypeAAAA
-	}
+	ipType := utils.RecordType(provider.configuration.IPType)
 
 	// Generates UUID
 	uid, _ := uuid.NewRandom()

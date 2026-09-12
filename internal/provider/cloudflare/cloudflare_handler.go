@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"strings"
 
 	"github.com/TimothyYe/godns/internal/settings"
 	"github.com/TimothyYe/godns/internal/utils"
@@ -246,13 +245,7 @@ func (provider *DNSProvider) getDNSRecords(zoneID string) []DNSRecord {
 
 	var empty []DNSRecord
 	var r DNSRecordResponse
-	var recordType string
-
-	if provider.configuration.IPType == "" || strings.ToUpper(provider.configuration.IPType) == utils.IPV4 {
-		recordType = utils.IPTypeA
-	} else if strings.ToUpper(provider.configuration.IPType) == utils.IPV6 {
-		recordType = utils.IPTypeAAAA
-	}
+	recordType := utils.RecordType(provider.configuration.IPType)
 
 	log.Infof("Querying records with type: %s", recordType)
 	req, client, err := provider.newRequest("GET", fmt.Sprintf("/zones/"+zoneID+"/dns_records?type=%s&page=1&per_page=500", recordType), nil)
@@ -287,16 +280,8 @@ func (provider *DNSProvider) getDNSRecords(zoneID string) []DNSRecord {
 }
 
 func (provider *DNSProvider) createRecord(zoneID, domain, subDomain, ip string) error {
-	var recordType string
-
-	if provider.configuration.IPType == "" || strings.ToUpper(provider.configuration.IPType) == utils.IPV4 {
-		recordType = utils.IPTypeA
-	} else if strings.ToUpper(provider.configuration.IPType) == utils.IPV6 {
-		recordType = utils.IPTypeAAAA
-	}
-
 	newRecord := DNSRecord{
-		Type: recordType,
+		Type: utils.RecordType(provider.configuration.IPType),
 		IP:   ip,
 		TTL:  1,
 	}

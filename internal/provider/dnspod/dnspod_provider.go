@@ -122,10 +122,10 @@ func (provider *DNSProvider) getSubDomain(domainID int64, name string) (string, 
 	value.Add("length", "1")
 	value.Add("sub_domain", name)
 
-	if provider.configuration.IPType == "" || strings.ToUpper(provider.configuration.IPType) == utils.IPV4 {
-		value.Add("record_type", "A")
-	} else if strings.ToUpper(provider.configuration.IPType) == utils.IPV6 {
-		value.Add("record_type", "AAAA")
+	if utils.IsIPv4(provider.configuration.IPType) {
+		value.Add("record_type", utils.IPTypeA)
+	} else if utils.IsIPv6(provider.configuration.IPType) {
+		value.Add("record_type", utils.IPTypeAAAA)
 	} else {
 		log.Error("Error: must specify \"ip_type\" in config for DNSPod.")
 		return "", ""
@@ -173,9 +173,9 @@ func (provider *DNSProvider) updateIP(domainID int64, subDomainID string, subDom
 	value.Add("record_id", subDomainID)
 	value.Add("sub_domain", subDomainName)
 
-	if strings.ToUpper(provider.configuration.IPType) == utils.IPV4 {
+	if utils.IsIPv4(provider.configuration.IPType) {
 		value.Add("record_type", utils.IPTypeA)
-	} else if strings.ToUpper(provider.configuration.IPType) == utils.IPV6 {
+	} else if utils.IsIPv6(provider.configuration.IPType) {
 		value.Add("record_type", utils.IPTypeAAAA)
 	} else {
 		log.Error("Must specify ip_type in config for DNSPod.")

@@ -49,7 +49,7 @@ func (helper *IPHelper) UpdateConfiguration(conf *settings.Settings) {
 	// reset the index
 	helper.idx = -1
 
-	if conf.IPType == "" || strings.ToUpper(conf.IPType) == utils.IPV4 {
+	if utils.IsIPv4(conf.IPType) {
 		// filter empty urls
 		for _, url := range conf.IPUrls {
 			if url != "" {
@@ -229,11 +229,11 @@ func (helper *IPHelper) getIPFromInterface() (string, error) {
 		}
 
 		if isIPv4(ip.String()) {
-			if strings.ToUpper(helper.configuration.IPType) != utils.IPV4 {
+			if !utils.IsIPv4(helper.configuration.IPType) {
 				continue
 			}
 		} else {
-			if strings.ToUpper(helper.configuration.IPType) != utils.IPV6 {
+			if !utils.IsIPv6(helper.configuration.IPType) {
 				continue
 			}
 		}
@@ -300,7 +300,7 @@ func (helper *IPHelper) getIPOnline() string {
 		DialContext: func(ctx context.Context, _, addr string) (net.Conn, error) {
 			proto := "tcp"
 
-			if strings.ToUpper(helper.configuration.IPType) == utils.IPV4 {
+			if utils.IsIPv4(helper.configuration.IPType) {
 				// Force the network to "tcp4" to use only IPv4
 				proto = "tcp4"
 			}
@@ -364,13 +364,13 @@ func (helper *IPHelper) getIPOnline() string {
 		}
 
 		if isIPv4(onlineIP) {
-			if strings.ToUpper(helper.configuration.IPType) != utils.IPV4 {
+			if !utils.IsIPv4(helper.configuration.IPType) {
 				log.Warnf("The online IP (%s) from %s is not IPV6, will skip it.", onlineIP, reqURL)
 				response.Body.Close()
 				continue
 			}
 		} else {
-			if strings.ToUpper(helper.configuration.IPType) != utils.IPV6 {
+			if !utils.IsIPv6(helper.configuration.IPType) {
 				log.Warnf("The online IP (%s) from %s is not IPV4, will skip it.", onlineIP, reqURL)
 				response.Body.Close()
 				continue

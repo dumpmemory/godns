@@ -82,8 +82,5 @@ func checkExistence(repo domain.Repository, subdomain, domainName string) (bool,
 
 // defaults to A record (ipv4).
 func (provider *DNSProvider) setType() string {
-	if strings.ToUpper(provider.configuration.IPType) == utils.IPV6 {
-		return utils.IPTypeAAAA
-	}
-	return utils.IPTypeA
+	return utils.RecordType(provider.configuration.IPType)
 }

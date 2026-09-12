@@ -89,10 +89,7 @@ func (provider *DNSProvider) UpdateIP(domainName, subdomainName, ip string) erro
 	}
 
 	// Determine record type
-	recordType := utils.IPTypeA
-	if provider.configuration.IPType != "" && strings.ToUpper(provider.configuration.IPType) == utils.IPV6 {
-		recordType = utils.IPTypeAAAA
-	}
+	recordType := utils.RecordType(provider.configuration.IPType)
 
 	// Find the target record name
 	var targetName string

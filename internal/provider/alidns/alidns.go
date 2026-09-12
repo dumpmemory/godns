@@ -110,11 +110,7 @@ func (d *AliDNS) GetDomainRecords(domain, rr string) []DomainRecord {
 		"SubDomain": fmt.Sprintf("%s.%s", rr, domain),
 	}
 
-	if d.IPType == "" || strings.ToUpper(d.IPType) == utils.IPV4 {
-		params["Type"] = utils.IPTypeA
-	} else if strings.ToUpper(d.IPType) == utils.IPV6 {
-		params["Type"] = utils.IPTypeAAAA
-	}
+	params["Type"] = utils.RecordType(d.IPType)
 
 	urlPath := d.genRequestURL(params)
 	body, err := getHTTPBody(urlPath)
@@ -141,11 +137,7 @@ func (d *AliDNS) UpdateDomainRecord(r DomainRecord) error {
 		"Line":     r.Line,
 	}
 
-	if d.IPType == "" || strings.ToUpper(d.IPType) == utils.IPV4 {
-		params["Type"] = utils.IPTypeA
-	} else if strings.ToUpper(d.IPType) == utils.IPV6 {
-		params["Type"] = utils.IPTypeAAAA
-	}
+	params["Type"] = utils.RecordType(d.IPType)
 
 	urlPath := d.genRequestURL(params)
 	if urlPath == "" {

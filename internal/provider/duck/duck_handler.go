@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"strings"
 
 	"github.com/TimothyYe/godns/internal/settings"
 	"github.com/TimothyYe/godns/internal/utils"
@@ -33,11 +32,8 @@ func (provider *DNSProvider) UpdateIP(domainName, subdomainName, ip string) erro
 }
 
 func (provider *DNSProvider) updateIP(domainName, subdomainName, currentIP string) error {
-	var ip string
-
-	if strings.ToUpper(provider.configuration.IPType) == utils.IPV4 {
-		ip = fmt.Sprintf("ip=%s", currentIP)
-	} else if strings.ToUpper(provider.configuration.IPType) == utils.IPV6 {
+	ip := fmt.Sprintf("ip=%s", currentIP)
+	if utils.IsIPv6(provider.configuration.IPType) {
 		ip = fmt.Sprintf("ipv6=%s", currentIP)
 	}
 

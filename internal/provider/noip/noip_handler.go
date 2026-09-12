@@ -33,10 +33,8 @@ func (provider *DNSProvider) UpdateIP(domainName, subdomainName, ip string) erro
 }
 
 func (provider *DNSProvider) update(client *http.Client, hostname, subdomain string, currentIP string) error {
-	var ip string
-	if strings.ToUpper(provider.configuration.IPType) == utils.IPV4 {
-		ip = fmt.Sprintf("myip=%s", currentIP)
-	} else if strings.ToUpper(provider.configuration.IPType) == utils.IPV6 {
+	ip := fmt.Sprintf("myip=%s", currentIP)
+	if utils.IsIPv6(provider.configuration.IPType) {
 		ip = fmt.Sprintf("myipv6=%s", currentIP)
 	}
 

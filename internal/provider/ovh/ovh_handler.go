@@ -2,7 +2,6 @@ package ovh
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/TimothyYe/godns/internal/settings"
 	"github.com/TimothyYe/godns/internal/utils"
@@ -60,7 +59,7 @@ func (provider *DNSProvider) UpdateIP(domainName string, subdomainName string, i
 			return err
 		}
 
-		if strings.ToUpper(provider.configuration.IPType) == provider.recordTypeToIPType(record.Type) {
+		if record.Type == utils.RecordType(provider.configuration.IPType) {
 			outrec = record
 			break
 		}
@@ -83,11 +82,4 @@ func (provider *DNSProvider) UpdateIP(domainName string, subdomainName string, i
 		return err
 	}
 	return nil
-}
-func (provider *DNSProvider) recordTypeToIPType(Type string) string {
-	if Type == utils.IPTypeAAAA {
-		return utils.IPV6
-	}
-	return utils.IPV4
-
 }
