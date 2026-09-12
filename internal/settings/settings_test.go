@@ -2,6 +2,7 @@ package settings
 
 import (
 	"os"
+	"path/filepath"
 	"testing"
 )
 
@@ -80,4 +81,32 @@ func TestLoadWithEnvPath(t *testing.T) {
 	}
 
 	t.Log(settings)
+}
+
+func TestQueryInterfaceField(t *testing.T) {
+	dir := t.TempDir()
+
+	jsonPath := filepath.Join(dir, "config.json")
+	if err := os.WriteFile(jsonPath, []byte(`{"query_interface": "wan0"}`), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	var jsonSettings Settings
+	if err := LoadSettings(jsonPath, &jsonSettings); err != nil {
+		t.Fatal(err)
+	}
+	if jsonSettings.QueryInterface != "wan0" {
+		t.Errorf("json query_interface = %q, want wan0", jsonSettings.QueryInterface)
+	}
+
+	yamlPath := filepath.Join(dir, "config.yaml")
+	if err := os.WriteFile(yamlPath, []byte("query_interface: wan1\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	var yamlSettings Settings
+	if err := LoadSettings(yamlPath, &yamlSettings); err != nil {
+		t.Fatal(err)
+	}
+	if yamlSettings.QueryInterface != "wan1" {
+		t.Errorf("yaml query_interface = %q, want wan1", yamlSettings.QueryInterface)
+	}
 }

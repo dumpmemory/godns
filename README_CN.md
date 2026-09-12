@@ -1187,6 +1187,27 @@ http://localhost:5000/api/v1/send?domain=ddns.example.com&ip=192.168.1.1&ip_type
 
 注意：如果也指定了 `ip_urls`，它将首先用于执行在线查找，网络接口 IP 将在失败情况下用作后备。
 
+#### 通过特定网络接口查询 IP
+
+在有多条上行链路的主机上，在线 IP 查询默认会走默认路由。如果默认路由在 CGNAT 后面，而另一条链路拥有公网地址，查询结果就会是错误的 IP。`query_interface` 可以让查询请求从指定的网络接口发出：
+
+```json
+{
+  "ip_urls": ["https://api.ipify.org/"],
+  "query_interface": "wan0",
+  "ip_type": "IPv4"
+}
+```
+
+GoDNS 会把查询用的 socket 绑定到该设备（Linux 上使用 `SO_BINDTODEVICE`，macOS 上使用 `IP_BOUND_IF`），并使用该接口的地址作为源地址。设备绑定才是真正决定路由的关键，因此无需额外配置策略路由。在其他平台上只会绑定源地址，这在系统路由已经把该源地址导向正确链路时同样有效。
+
+注意：
+
+- `query_interface` 与 `ip_interface` 不同。`query_interface` 决定 HTTP 请求从哪条链路发出，`ip_interface` 则直接读取本地接口上的地址，不发出任何请求。
+- 该接口必须拥有与 `ip_type` 匹配的全局单播地址。私有地址也可以，例如位于 1:1 NAT 之后的接口。
+- 在低于 5.7 的 Linux 内核上，绑定设备需要 `CAP_NET_RAW` 权限。绑定失败时查询会直接失败，而不会悄悄退回默认路由。
+- 查询 URL 的主机名仍然通过系统解析器解析。
+
 #### SOCKS5 代理支持
 
 您可以通过在配置文件中指定 [SOCKS5 代理](https://en.wikipedia.org/wiki/SOCKS#SOCKS5) 来使所有远程调用通过该代理：

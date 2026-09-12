@@ -1189,6 +1189,27 @@ With `interface-name` replaced by the name of the network interface, e.g. `eth0`
 
 Note: If `ip_urls` is also specified, it will be used to perform an online lookup first and the network interface IP will be used as a fallback in case of failure.
 
+#### Query IP through specific network interface
+
+On a host with several uplinks, the online IP lookup normally leaves through the default route. If that route sits behind CGNAT while another link has a public address, the lookup returns the wrong IP. `query_interface` sends the lookup out through a named interface instead:
+
+```json
+{
+  "ip_urls": ["https://api.ipify.org/"],
+  "query_interface": "wan0",
+  "ip_type": "IPv4"
+}
+```
+
+GoDNS binds the lookup socket to the device itself (`SO_BINDTODEVICE` on Linux, `IP_BOUND_IF` on macOS) and uses one of the interface's addresses as the source. The device bind is what forces the route, so no policy-routing rules are needed. On other platforms only the source address is bound, which works when the system's routing already sends that source out the intended link.
+
+Notes:
+
+- `query_interface` is different from `ip_interface`. `query_interface` chooses which link the HTTP request leaves through. `ip_interface` reads the address straight off a local interface without any request.
+- The interface must carry a global-unicast address of the configured `ip_type`. Private addresses are fine, e.g. an interface behind a 1:1 NAT.
+- On Linux kernels older than 5.7, binding to a device requires the `CAP_NET_RAW` capability. If the bind fails, the lookup fails rather than silently falling back to the default route.
+- The lookup URL's hostname is still resolved through the system resolver.
+
 #### SOCKS5 proxy support
 
 You can make all remote calls go through a [SOCKS5 proxy](https://en.wikipedia.org/wiki/SOCKS#SOCKS5) by specifying it in the configuration file this way:

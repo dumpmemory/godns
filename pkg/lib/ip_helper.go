@@ -299,16 +299,33 @@ func (helper *IPHelper) getIPOnline() string {
 	transport := &http.Transport{
 		DialContext: func(ctx context.Context, _, addr string) (net.Conn, error) {
 			proto := "tcp"
-
-			if utils.IsIPv4(helper.configuration.IPType) {
+			switch {
+			case utils.IsIPv4(helper.configuration.IPType):
 				// Force the network to "tcp4" to use only IPv4
 				proto = "tcp4"
+			case helper.configuration.QueryInterface != "":
+				// A bound source address must match the family we dial.
+				proto = "tcp6"
 			}
 
-			return (&net.Dialer{
+			dialer := &net.Dialer{
 				Timeout:   time.Second * utils.DefaultTimeout,
 				KeepAlive: 30 * time.Second,
-			}).DialContext(ctx, proto, addr)
+			}
+
+			// Route the lookup through a specific interface if configured.
+			// The interface is resolved on every dial so a changed address
+			// (DHCP renew, PPP reconnect) is picked up without a restart.
+			if helper.configuration.QueryInterface != "" {
+				var err error
+				dialer, err = interfaceDialer(helper.configuration.QueryInterface, proto, time.Second*utils.DefaultTimeout)
+				if err != nil {
+					log.Error("Failed to bind IP query to interface: ", err)
+					return nil, err
+				}
+			}
+
+			return dialer.DialContext(ctx, proto, addr)
 		},
 	}
 
